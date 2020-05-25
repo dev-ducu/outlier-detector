@@ -1,23 +1,18 @@
 package outlierdetector.controller;
 
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
-import io.swagger.annotations.ApiParam;
-import io.swagger.annotations.ApiResponse;
-import io.swagger.annotations.ApiResponses;
-import java.util.List;
-import java.util.Optional;
+import io.swagger.annotations.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import outlierdetector.config.SwaggerConfig;
-import outlierdetector.dto.request.OutlierRequestDTO;
 import outlierdetector.dto.response.OutlierResponseDTO;
 import outlierdetector.service.OutlierDetectionService;
+
+import java.util.List;
+import java.util.Optional;
 
 @RestController
 @Slf4j
@@ -40,13 +35,12 @@ public class OutlierDetectorController {
             @ApiResponse(code = 403, message = "Not found")
     })
     public OutlierResponseDTO get(
-            @ApiParam("Publisher Id") @RequestParam String publisherId,
-            @ApiParam("Reading bucket size") @RequestParam Integer dataSize,
-            @ApiParam("Max allowed deviation; if not given, will default to 30%") @RequestParam(required = false) Double deviation) {
+            @ApiParam(value = "Publisher Id", example = "publisher-1") @RequestParam String publisherId,
+            @ApiParam(value = "Reading bucket size", example = "10") @RequestParam Integer dataSize,
+            @ApiParam(value = "Max allowed deviation; if not given, will default to 30%", example = "0.3") @RequestParam(required = false) Double deviation) {
         log.info("Handling GET request on path => " + OUTLIERS_PATH);
 
-        final List<Integer> outliers = outlierService.getOutliers(publisherId, dataSize, Optional.ofNullable(deviation));
-
+        final List<Double> outliers = outlierService.getOutliers(publisherId, dataSize, Optional.ofNullable(deviation));
         final OutlierResponseDTO responseDTO = OutlierResponseDTO.builder()
                 .outliers(outliers)
                 .build();

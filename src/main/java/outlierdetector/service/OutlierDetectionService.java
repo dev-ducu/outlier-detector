@@ -1,51 +1,55 @@
 package outlierdetector.service;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
+import outlierdetector.exception.CustomException;
+
 import java.math.BigDecimal;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import org.springframework.http.HttpStatus;
-import org.springframework.util.CollectionUtils;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import outlierdetector.exception.CustomException;
 
 @Service
 @Slf4j
 public class OutlierDetectionService {
 
-    private final DataConsumerMockService dataConsumerMockService;
     private final static Double DEFAULT_DEVIATION_PERCENTAGE = 30.0;
 
-    public OutlierDetectionService(DataConsumerMockService dataConsumerMockService) {
-        this.dataConsumerMockService = dataConsumerMockService;
+    private final DataConsumerRemoteService dataConsumerRemoteService;
+
+    public OutlierDetectionService(DataConsumerRemoteService dataConsumerRemoteService) {
+        this.dataConsumerRemoteService = dataConsumerRemoteService;
     }
 
-    public List<Integer> getOutliers(String publisherId, Integer dataSize, Optional<Double> deviation) {
-        final List<Integer> data = dataConsumerMockService.readDataByPublisher(publisherId, dataSize);
-        return computeOutliers(publisherId, deviation.orElse(DEFAULT_DEVIATION_PERCENTAGE), data);
+    public List<Double> getOutliers(String publisherId, Integer dataSize, Optional<Double> deviation) {
+        return computeOutliers(
+                publisherId,
+                deviation.orElse(DEFAULT_DEVIATION_PERCENTAGE),
+                dataConsumerRemoteService.readDataPointsByPublisher(publisherId, dataSize));
     }
 
-    private List<Integer> computeOutliers(String publisherId, Double deviation, List<Integer> data) {
-        if (CollectionUtils.isEmpty(data)) {
+    private List<Double> computeOutliers(String publisherId, Double deviation, List<Double> dataPoints) {
+        if (CollectionUtils.isEmpty(dataPoints)) {
             log.warn("No data found for publisher {}", publisherId);
             throw new CustomException(String.format("No data found for publisher %s", publisherId), HttpStatus.NOT_FOUND);
         }
 
         // Log the sorted data set, for troubleshooting purposes.
-        Collections.sort(data);
-        log.info("Reading data set: {}", data);
+        Collections.sort(dataPoints);
+        log.info("Reading data set: {}", dataPoints);
 
         // Compute the data set average value
-        final Double average = data.stream().mapToDouble(dataItem -> Double.valueOf(dataItem)).average().getAsDouble();
+        final Double average = dataPoints.stream().mapToDouble(Double::valueOf).average().getAsDouble();
 
         // Compute the lower & upper limits of the 'normal values' range
         final Double lowerLimit = subtractPercentage(average, deviation);
         final Double upperLimit = addPercentage(average, deviation);
 
-        final List<Integer> outliers = data.stream()
-                .filter(dataItem -> dataItem < lowerLimit || dataItem > upperLimit)
+        final List<Double> outliers = dataPoints.stream()
+                .filter(dataPoint -> (dataPoint < lowerLimit) || (dataPoint > upperLimit))
                 .collect(Collectors.toList());
 
         log.info("Outliers for deviation value =  {}% : {}", deviation, outliers);

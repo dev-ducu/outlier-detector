@@ -19,5 +19,5 @@ public class OutlierResponseDTO {
 
     @NotBlank
     @ApiModelProperty(name = "Outliers", value = "Computed outlier values")
-    private List<Integer> outliers;
+    private List<Double> outliers;
 }

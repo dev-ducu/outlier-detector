@@ -19,18 +19,18 @@ import static org.mockito.Mockito.when;
 public class OutlierDetectionServiceTest {
 
     @Mock
-    private DataConsumerMockService dataConsumerMockService;
+    private DataConsumerRemoteService dataConsumerRemoteService;
 
     private OutlierDetectionService outlierDetectionService;
 
     @Before
     public void setup() {
-        outlierDetectionService = new OutlierDetectionService(dataConsumerMockService);
+        outlierDetectionService = new OutlierDetectionService(dataConsumerRemoteService);
     }
 
     @Test(expected = CustomException.class)
     public void getOutliers_whenNoData_shouldThrowException() {
-        when(dataConsumerMockService.readDataByPublisher("123", 5))
+        when(dataConsumerRemoteService.readDataPointsByPublisher("123", 5))
                 .thenReturn(Collections.emptyList());
 
         outlierDetectionService.getOutliers("123", 5, Optional.empty());
@@ -38,20 +38,20 @@ public class OutlierDetectionServiceTest {
 
     @Test
     public void getOutliers_whenNoDeviationGiven_shouldReturnExpected() {
-        when(dataConsumerMockService.readDataByPublisher("123", 5))
-                .thenReturn(Arrays.asList(11, 12, 14, 15, 15, 16, 18, 19, 22, 23));
+        when(dataConsumerRemoteService.readDataPointsByPublisher("123", 5))
+                .thenReturn(Arrays.asList(11.0, 12.0, 14.0, 15.0, 15.0, 16.0, 18.0, 19.0, 22.0, 23.0));
 
-        final List<Integer> result = outlierDetectionService.getOutliers("123", 5, Optional.empty());
+        final List<Double> result = outlierDetectionService.getOutliers("123", 5, Optional.empty());
 
-        assertThat(result, containsInAnyOrder(11, 22, 23));
+        assertThat(result, containsInAnyOrder(11.0, 22.0, 23.0));
     }
 
     @Test
     public void getOutliers_whenDeviationGiven_shouldUseDefault() {
-        when(dataConsumerMockService.readDataByPublisher("123", 5))
-                .thenReturn(Arrays.asList(11, 12, 14, 15, 15, 16, 18, 19, 22, 23));
+        when(dataConsumerRemoteService.readDataPointsByPublisher("123", 5))
+                .thenReturn(Arrays.asList(11.0, 12.0, 14.0, 15.0, 15.0, 16.0, 18.0, 19.0, 22.0, 23.0));
 
-        final List<Integer> result = outlierDetectionService.getOutliers("123", 5, Optional.of(35.0));
+        final List<Double> result = outlierDetectionService.getOutliers("123", 5, Optional.of(35.0));
 
         assertThat(result, containsInAnyOrder(23));
     }

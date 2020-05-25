@@ -17,7 +17,7 @@ import java.util.Optional;
 @RestController
 @Slf4j
 @RequestMapping(OutlierDetectorController.OUTLIERS_PATH)
-@Api(tags = SwaggerConfig.TAG_DATA_POINTS)
+@Api(tags = SwaggerConfig.TAG_OUTLIERS)
 public class OutlierDetectorController {
 
     public static final String OUTLIERS_PATH = "/outliers";

@@ -18,7 +18,7 @@ import java.util.Optional;
 @EnableSwagger2
 public class SwaggerConfig {
 
-    public static final String TAG_DATA_POINTS = "data-points";
+    public static final String TAG_OUTLIERS = "outliers";
 
     @Bean
     public Docket api() {
@@ -30,7 +30,7 @@ public class SwaggerConfig {
                 .build()
                 .apiInfo(metadata())
                 .useDefaultResponseMessages(false)
-                .tags(new Tag(TAG_DATA_POINTS, "Data points operations (create data points, etc)"))
+                .tags(new Tag(TAG_OUTLIERS, "Get the outliers"))
                 .genericModelSubstitutes(Optional.class);
     }
 
@@ -38,7 +38,7 @@ public class SwaggerConfig {
         return new ApiInfoBuilder()
                 .title("Outlier Detector Service API")
                 .description("This is the Outlier Detector Service REST API. " +
-                        "The service context is <b>/data-points</b>, so make sure  that all REST requests URLs start with that.")
+                        "The service context is <b>/outlier-detector</b>, so make sure  that all REST requests URLs start with that.")
                 .version("1.0.0")
                 .build();
     }

@@ -53,7 +53,7 @@ public class IntegrationTest {
 
     @Test
     public void endToEndIntegrationTest() {
-//        dataToTest.stream().forEach(dp -> pushTestData(dp));
+        dataToTest.stream().forEach(dp -> pushTestData(dp));
         final List<Double> results = getResults();
 
         assertThat("The expected outliers don't match the actual result", results, is(expectedResults));

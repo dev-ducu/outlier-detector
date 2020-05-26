@@ -29,7 +29,7 @@ public class IntegrationTest {
     private List<DataPoint> dataToTest;
     private List<Double> expectedResults;
 
-    @BeforeClass
+    @Before
     public void setup() {
 
         // Data points ignored, being older than the last 5 data points
@@ -53,7 +53,7 @@ public class IntegrationTest {
 
     @Test
     public void endToEndIntegrationTest() {
-        dataToTest.stream().forEach(dp -> pushTestData(dp));
+//        dataToTest.stream().forEach(dp -> pushTestData(dp));
         final List<Double> results = getResults();
 
         assertThat("The expected outliers don't match the actual result", results, is(expectedResults));
